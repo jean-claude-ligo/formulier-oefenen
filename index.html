@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oefenen met een invulformulier – Ligo</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔑</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blauw: #056181;
+    --turkoois: #09b9bb;
+    --ijsblauw: #e3f5f5;
+    --geel: #e9b950;
+    --geel-licht: #fbf3df;
+    --mint: #82ccb1;
+    --mint-licht: #eaf7f2;
+    --zalm: #f6d2c0;
+    --oranje: #e06025;
+    --rood: #c4321a;       /* donkerder tint van het oranje: leesbaar als kleine tekst */
+    --grijs: #575656;
+    --ink: #1f2a30;
+    --paper: #ffffff;
+    --line: #c9e3e3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ijsblauw); color: var(--ink);
+    font-family: "Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif;
+    font-size: 18px; line-height: 1.5;
+  }
+  header.kopbalk { background: var(--paper); border-bottom: 4px solid var(--turkoois); }
+  header.kopbalk .binnen { max-width: 560px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 14px; }
+  header.kopbalk img { height: 44px; width: auto; display: block; }
+  header.kopbalk span { color: var(--grijs); font-size: .95rem; border-left: 2px solid var(--line); padding-left: 14px; }
+  main { max-width: 560px; margin: 0 auto; padding: 32px 20px 64px; }
+  h1 { font-size: 2rem; line-height: 1.15; margin: 0 0 8px; color: var(--blauw); }
+  h2 { font-size: 1.3rem; margin: 0 0 12px; color: var(--blauw); }
+  p.lead { color: var(--grijs); margin: 0 0 24px; }
+  a { color: var(--blauw); }
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 24px; margin-bottom: 20px; }
+  .panel h2:not(:first-child) { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .verplicht-uitleg { font-size: .95rem; color: var(--grijs); margin: 0 0 18px; }
+  .ster { color: var(--rood); font-weight: 700; }
+
+  .veld { margin-top: 16px; }
+  .veld:first-of-type { margin-top: 0; }
+  .rij { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  .rij.postcode { grid-template-columns: 2fr 3fr; }
+  .rij .veld { margin-top: 16px; }
+  label { display: block; font-weight: 700; margin: 0 0 6px; }
+  label .optioneel { font-weight: 400; color: var(--grijs); }
+  input[type=text], input[type=email], input[type=tel] {
+    width: 100%; font: inherit; padding: 12px 14px; border: 2px solid var(--line);
+    border-radius: 4px; background: #fff; color: var(--ink);
+  }
+  input:focus { outline: none; border-color: var(--blauw); box-shadow: 0 0 0 3px rgba(5,97,129,.18); }
+  .hint { font-size: .9rem; color: var(--grijs); margin-top: 6px; }
+
+  /* Foutmelding onder een veld: de kleine rode lettertjes */
+  .veld.fout input { border-color: var(--rood); background: #fff8f5; }
+  .veld.fout input:focus { box-shadow: 0 0 0 3px rgba(196,50,26,.2); }
+  .veldfout { display: none; font-size: .85rem; color: var(--rood); margin-top: 5px; }
+  .veld.fout .veldfout, .vinkje.fout .veldfout { display: block; }
+
+  /* Vinkjes */
+  .vinkje { margin-top: 16px; }
+  .vinkje label { display: flex; gap: 12px; align-items: flex-start; font-weight: 400; cursor: pointer; }
+  .vinkje input[type=checkbox] { width: 24px; height: 24px; margin: 2px 0 0; flex-shrink: 0; accent-color: var(--blauw); cursor: pointer; }
+  .vinkje.fout input[type=checkbox] { outline: 2px solid var(--rood); outline-offset: 2px; }
+  .vinkje .veldfout { margin-left: 36px; }
+  details.voorwaarden { margin: 10px 0 0 36px; font-size: .9rem; color: var(--grijs); }
+  details.voorwaarden summary { cursor: pointer; color: var(--blauw); text-decoration: underline; }
+  details.voorwaarden p { margin: 8px 0 0; }
+
+  /* Samenvatting bovenaan het formulier */
+  .samenvatting {
+    margin: 0 0 20px; padding: 14px 16px; border-left: 4px solid var(--oranje);
+    background: var(--zalm); color: var(--ink); border-radius: 0 4px 4px 0;
+  }
+  .samenvatting:focus { outline: 3px solid var(--turkoois); outline-offset: 2px; }
+  .samenvatting strong { display: block; margin-bottom: 4px; }
+  .samenvatting ul { margin: 6px 0 0; padding-left: 1.2em; }
+  .samenvatting a { color: var(--ink); }
+
+  button {
+    font: inherit; font-weight: 700; margin-top: 24px; padding: 12px 22px; border: 2px solid var(--blauw);
+    border-radius: 4px; background: var(--blauw); color: #fff; cursor: pointer;
+  }
+  button:hover { background: #044e68; border-color: #044e68; }
+  button.secondary { background: transparent; color: var(--blauw); margin-left: 8px; }
+  button.secondary:hover { background: var(--ijsblauw); }
+  button:focus-visible { outline: 3px solid var(--turkoois); outline-offset: 2px; }
+  .hidden { display: none !important; }
+
+  /* Resultaat */
+  .gelukt { text-align: center; padding: 36px 24px; }
+  .vink-groot {
+    width: 72px; height: 72px; border-radius: 50%; background: var(--turkoois); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 700; margin-bottom: 14px;
+  }
+  .score-goed { background: var(--mint-licht); border-left: 4px solid var(--mint); padding: 12px 14px; margin: 0 0 18px; }
+  .score-tip { background: var(--geel-licht); border-left: 4px solid var(--geel); padding: 12px 14px; margin: 0 0 18px; }
+  dl.overzicht { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 0 16px; }
+  dl.overzicht dt { color: var(--grijs); padding: 8px 0; border-top: 1px solid var(--line); }
+  dl.overzicht dd { margin: 0; padding: 8px 0; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+  ul.vergeten { margin: 6px 0 0; padding-left: 1.2em; }
+  ol.steps { padding-left: 1.3em; margin: 0; }
+  ol.steps li { margin-bottom: 8px; }
+
+  @media (max-width: 480px) {
+    header.kopbalk .binnen > span { display: none; }
+    .rij, .rij.postcode { grid-template-columns: 1fr; }
+    dl.overzicht { grid-template-columns: 1fr; }
+    dl.overzicht dd { border-top: 0; padding-top: 0; }
+    button.secondary { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<header class="kopbalk">
+  <div class="binnen">
+    <img src="data:image/png;base64,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" alt="Ligo">
+    <span>Oefensite invulformulier</span>
+  </div>
+</header>
+<main>
+
+  <!-- STAP 1: formulier invullen -->
+  <section id="stap-formulier">
+    <h1>Maak je account aan</h1>
+    <p class="lead">Dit is een oefensite. Vul het formulier in zoals op een echte website. Wat je invult, wordt nergens naartoe gestuurd of bewaard.</p>
+
+    <form id="formulier" class="panel" autocomplete="on" novalidate>
+      <div class="samenvatting hidden" id="samenvatting" role="alert" tabindex="-1">
+        <strong>Je hebt niet alles ingevuld.</strong>
+        Kijk naar de rode meldingen bij deze velden:
+        <ul id="samenvattingLijst"></ul>
+      </div>
+
+      <p class="verplicht-uitleg">Velden met een <span class="ster">*</span> zijn verplicht.</p>
+
+      <h2>Over jou</h2>
+      <div class="rij">
+        <div class="veld" data-naam="Voornaam">
+          <label for="voornaam">Voornaam <span class="ster">*</span></label>
+          <input type="text" id="voornaam" name="given-name" autocomplete="given-name" required aria-describedby="voornaam-fout">
+          <div class="veldfout" id="voornaam-fout"></div>
+        </div>
+        <div class="veld" data-naam="Familienaam">
+          <label for="familienaam">Familienaam <span class="ster">*</span></label>
+          <input type="text" id="familienaam" name="family-name" autocomplete="family-name" required aria-describedby="familienaam-fout">
+          <div class="veldfout" id="familienaam-fout"></div>
+        </div>
+      </div>
+
+      <div class="veld" data-naam="Geboortedatum">
+        <label for="geboortedatum">Geboortedatum <span class="optioneel">(dd-mm-jj)</span></label>
+        <input type="text" id="geboortedatum" name="bday" autocomplete="bday" inputmode="numeric" placeholder="dd-mm-jj" aria-describedby="geboortedatum-hint geboortedatum-fout">
+        <div class="hint" id="geboortedatum-hint">Bijvoorbeeld 05-03-62 voor 5 maart 1962.</div>
+        <div class="veldfout" id="geboortedatum-fout"></div>
+      </div>
+
+      <h2>Contactgegevens</h2>
+      <div class="veld" data-naam="E-mailadres">
+        <label for="email">E-mailadres <span class="ster">*</span></label>
+        <input type="email" id="email" name="email" autocomplete="email" required aria-describedby="email-fout">
+        <div class="veldfout" id="email-fout"></div>
+      </div>
+
+      <div class="veld" data-naam="Telefoonnummer">
+        <label for="telefoon">Telefoonnummer <span class="ster">*</span></label>
+        <input type="tel" id="telefoon" name="tel" autocomplete="tel" value="+32 " required aria-describedby="telefoon-hint telefoon-fout">
+        <div class="hint" id="telefoon-hint">+32 is de code voor België. Typ je nummer erachter, zonder de 0 vooraan. Voorbeeld: +32 470 12 34 56.</div>
+        <div class="veldfout" id="telefoon-fout"></div>
+      </div>
+
+      <h2>Adres</h2>
+      <div class="veld" data-naam="Straat en huisnummer">
+        <label for="straat">Straat en huisnummer <span class="ster">*</span></label>
+        <input type="text" id="straat" name="street-address" autocomplete="street-address" required aria-describedby="straat-fout">
+        <div class="veldfout" id="straat-fout"></div>
+      </div>
+      <div class="rij postcode">
+        <div class="veld" data-naam="Postcode">
+          <label for="postcode">Postcode <span class="ster">*</span></label>
+          <input type="text" id="postcode" name="postal-code" autocomplete="postal-code" inputmode="numeric" maxlength="4" required aria-describedby="postcode-fout">
+          <div class="veldfout" id="postcode-fout"></div>
+        </div>
+        <div class="veld" data-naam="Gemeente">
+          <label for="gemeente">Gemeente <span class="ster">*</span></label>
+          <input type="text" id="gemeente" name="address-level2" autocomplete="address-level2" required aria-describedby="gemeente-fout">
+          <div class="veldfout" id="gemeente-fout"></div>
+        </div>
+      </div>
+
+      <h2>Bijna klaar</h2>
+      <div class="vinkje" data-naam="Nieuwsbrief">
+        <label><input type="checkbox" id="nieuwsbrief" name="nieuwsbrief">
+          <span>Door dit aan te vinken ga je ermee akkoord om nieuwsbrieven van Ligo te ontvangen.</span></label>
+      </div>
+      <div class="vinkje" data-naam="Gebruiksvoorwaarden">
+        <label><input type="checkbox" id="voorwaarden" name="voorwaarden" required aria-describedby="voorwaarden-fout">
+          <span>Ik ga akkoord met de gebruiksvoorwaarden. <span class="ster">*</span></span></label>
+        <div class="veldfout" id="voorwaarden-fout"></div>
+        <details class="voorwaarden">
+          <summary>Gebruiksvoorwaarden lezen</summary>
+          <p>Dit is een oefensite van Ligo. Wat je hier invult, blijft op je eigen computer en verdwijnt zodra je de pagina sluit. Op een echte website lees je hier welke afspraken je maakt en wat er met je gegevens gebeurt.</p>
+        </details>
+      </div>
+
+      <button type="submit">Account aanmaken</button>
+    </form>
+  </section>
+
+  <!-- STAP 2: gelukt -->
+  <section id="stap-gelukt" class="hidden">
+    <div class="panel gelukt">
+      <div class="vink-groot" aria-hidden="true">✓</div>
+      <h1 id="geluktTitel">Gelukt!</h1>
+      <p class="lead" style="margin-bottom:0">Je account is aangemaakt. Je hebt het formulier volledig ingevuld.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Hoe ging het?</h2>
+      <div id="score"></div>
+
+      <h2>Dit heb je ingevuld</h2>
+      <dl class="overzicht" id="overzicht"></dl>
+    </div>
+
+    <div class="panel">
+      <h2>Wat heb je geoefend?</h2>
+      <ol class="steps">
+        <li>Een <span class="ster">*</span> betekent: dit veld moet je invullen.</li>
+        <li>Vergeet je iets, dan verschijnt bovenaan een melding en een rode tekst onder het veld.</li>
+        <li>Je zoekt het rode veld, vult het aan en klikt opnieuw op de knop.</li>
+      </ol>
+      <button type="button" id="opnieuw">Opnieuw oefenen</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Er is geen server: niets wordt verstuurd of opgeslagen.
+  // Sluit of vernieuw je de pagina, dan is alles weg.
+  const form = document.getElementById("formulier");
+  let pogingen = 0;
+  const ooitFout = new Set();   // velden die bij een poging nog niet in orde waren
+  let alGeprobeerd = false;     // pas na de eerste klik tonen we fouten terwijl je typt
+
+  const leeg = v => v.trim() === "";
+
+  function controleerDatum(v) {
+    const m = v.trim().match(/^(\d{1,2})[-/. ](\d{1,2})[-/. ](\d{2}|\d{4})$/);
+    if (!m) return "Schrijf de datum als dd-mm-jj, bijvoorbeeld 05-03-62.";
+    const d = +m[1], mnd = +m[2];
+    let j = +m[3];
+    if (m[3].length === 2) j += (j > new Date().getFullYear() % 100 ? 1900 : 2000);
+    const dt = new Date(j, mnd - 1, d);
+    if (dt.getFullYear() !== j || dt.getMonth() !== mnd - 1 || dt.getDate() !== d)
+      return "Deze datum bestaat niet. Kijk de dag en de maand na.";
+    if (dt > new Date()) return "Deze datum ligt in de toekomst.";
+    return "";
+  }
+
+  function controleerTelefoon(v) {
+    const t = v.replace(/[\s./()-]/g, "");
+    if (t === "" || t === "+32" || t === "+") return "Vul je telefoonnummer in.";
+    if (/^0\d{8,9}$/.test(t)) return "Zet +32 vooraan en laat de eerste 0 weg. Bijvoorbeeld +32 470 12 34 56.";
+    if (!t.startsWith("+32")) return "Begin je nummer met +32.";
+    const rest = t.slice(3);
+    if (rest.startsWith("0")) return "Laat de 0 na +32 weg. Typ dus +32 470 … en niet +32 0470 ….";
+    if (!/^\d+$/.test(rest)) return "Een telefoonnummer bevat alleen cijfers.";
+    if (rest.length < 8) return "Dit nummer is te kort. Kijk na of je geen cijfer vergeten bent.";
+    if (rest.length > 9) return "Dit nummer is te lang. Kijk na of je geen cijfer te veel hebt.";
+    return "";
+  }
+
+  // Elke regel geeft "" terug als het veld in orde is, anders de foutmelding.
+  const REGELS = {
+    voornaam:    v => leeg(v) ? "Vul je voornaam in." : "",
+    familienaam: v => leeg(v) ? "Vul je familienaam in." : "",
+    geboortedatum: v => leeg(v) ? "" : controleerDatum(v),
+    email: v => leeg(v) ? "Vul je e-mailadres in."
+      : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "Dit is geen geldig e-mailadres. Kijk na of er een @ en een punt in staan." : "",
+    telefoon: controleerTelefoon,
+    straat: v => leeg(v) ? "Vul je straat en huisnummer in."
+      : !/\d/.test(v) ? "Vergeet je huisnummer niet." : "",
+    postcode: v => leeg(v) ? "Vul je postcode in."
+      : !/^[1-9]\d{3}$/.test(v.trim()) ? "Een Belgische postcode heeft 4 cijfers, bijvoorbeeld 2000." : "",
+    gemeente: v => leeg(v) ? "Vul je gemeente in." : "",
+    voorwaarden: (_, el) => el.checked ? "" : "Je moet akkoord gaan met de gebruiksvoorwaarden om verder te gaan."
+  };
+
+  function controleer(id) {
+    const el = document.getElementById(id);
+    const doos = el.closest(".veld, .vinkje");
+    const melding = REGELS[id](el.value, el);
+    doos.classList.toggle("fout", !!melding);
+    document.getElementById(id + "-fout").textContent = melding;
+    el.setAttribute("aria-invalid", melding ? "true" : "false");
+    return melding;
+  }
+
+  function werkSamenvattingBij() {
+    const fouten = Object.keys(REGELS).filter(id => document.getElementById(id).closest(".fout"));
+    const doos = document.getElementById("samenvatting");
+    const lijst = document.getElementById("samenvattingLijst");
+    lijst.innerHTML = "";
+    fouten.forEach(id => {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = "#" + id;
+      a.textContent = document.getElementById(id).closest("[data-naam]").dataset.naam;
+      a.addEventListener("click", e => { e.preventDefault(); naarVeld(id); });
+      li.appendChild(a);
+      lijst.appendChild(li);
+    });
+    doos.classList.toggle("hidden", fouten.length === 0);
+    return fouten;
+  }
+
+  function naarVeld(id) {
+    const el = document.getElementById(id);
+    el.closest(".veld, .vinkje").scrollIntoView({ block: "center" });
+    el.focus({ preventScroll: true });
+  }
+
+  // Na de eerste poging: melding verdwijnt zodra het veld in orde is
+  Object.keys(REGELS).forEach(id => {
+    const el = document.getElementById(id);
+    const opnieuw = () => { if (alGeprobeerd) { controleer(id); werkSamenvattingBij(); } };
+    el.addEventListener(el.type === "checkbox" ? "change" : "input", opnieuw);
+    el.addEventListener("blur", opnieuw);
+  });
+
+  // +32 vooraan houden als het veld leeg is
+  const tel = document.getElementById("telefoon");
+  tel.addEventListener("blur", () => { if (tel.value.trim() === "") tel.value = "+32 "; });
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    pogingen++;
+    alGeprobeerd = true;
+    const fouten = Object.keys(REGELS).filter(id => controleer(id));
+    fouten.forEach(id => ooitFout.add(id));
+    werkSamenvattingBij();
+
+    if (fouten.length) {
+      const doos = document.getElementById("samenvatting");
+      doos.scrollIntoView({ block: "start" });
+      doos.focus({ preventScroll: true });
+      return;
+    }
+    toonResultaat();
+  });
+
+  function toonResultaat() {
+    const waarde = id => document.getElementById(id).value.trim();
+    document.getElementById("geluktTitel").textContent = "Gelukt, " + waarde("voornaam") + "!";
+
+    const score = document.getElementById("score");
+    score.innerHTML = "";
+    const div = document.createElement("div");
+    if (pogingen === 1) {
+      div.className = "score-goed";
+      div.textContent = "Knap! Je had alles in één keer juist ingevuld.";
+    } else {
+      div.className = "score-tip";
+      const p = document.createElement("div");
+      p.textContent = `Het lukte na ${pogingen} keer klikken op 'Account aanmaken'. Deze velden waren eerst nog niet in orde:`;
+      const ul = document.createElement("ul");
+      ul.className = "vergeten";
+      ooitFout.forEach(id => {
+        const li = document.createElement("li");
+        li.textContent = document.getElementById(id).closest("[data-naam]").dataset.naam;
+        ul.appendChild(li);
+      });
+      div.append(p, ul);
+    }
+    score.appendChild(div);
+
+    const rijen = [
+      ["Naam", waarde("voornaam") + " " + waarde("familienaam")],
+      ["Geboortedatum", waarde("geboortedatum") || "niet ingevuld"],
+      ["E-mailadres", waarde("email")],
+      ["Telefoon", waarde("telefoon")],
+      ["Adres", waarde("straat") + ", " + waarde("postcode") + " " + waarde("gemeente")],
+      ["Nieuwsbrief", document.getElementById("nieuwsbrief").checked ? "ja, aangevinkt" : "nee"],
+      ["Voorwaarden", "akkoord"]
+    ];
+    const dl = document.getElementById("overzicht");
+    dl.innerHTML = "";
+    rijen.forEach(([k, v]) => {
+      const dt = document.createElement("dt"); dt.textContent = k;
+      const dd = document.createElement("dd"); dd.textContent = v;
+      dl.append(dt, dd);
+    });
+
+    form.reset();   // de ingevulde gegevens verdwijnen uit het formulier
+    toon("stap-gelukt");
+  }
+
+  function beginOpnieuw() {
+    form.reset();
+    pogingen = 0;
+    ooitFout.clear();
+    alGeprobeerd = false;
+    Object.keys(REGELS).forEach(id => {
+      document.getElementById(id).closest(".veld, .vinkje").classList.remove("fout");
+      document.getElementById(id).removeAttribute("aria-invalid");
+    });
+    document.getElementById("samenvatting").classList.add("hidden");
+  }
+
+  // Het adres verandert (?stap=klaar), zoals na het versturen op een echte site
+  function toon(id, push = true) {
+    if (id === "stap-gelukt" && pogingen === 0) id = "stap-formulier";
+    ["stap-formulier", "stap-gelukt"].forEach(s =>
+      document.getElementById(s).classList.toggle("hidden", s !== id));
+    if (push) history.pushState({ stap: id }, "", location.pathname + (id === "stap-gelukt" ? "?stap=klaar" : ""));
+    window.scrollTo(0, 0);
+  }
+  history.replaceState({ stap: "stap-formulier" }, "", location.pathname);
+  window.addEventListener("popstate", e => {
+    const stap = (e.state && e.state.stap) || "stap-formulier";
+    if (stap === "stap-formulier") beginOpnieuw();
+    toon(stap, false);
+  });
+
+  document.getElementById("opnieuw").addEventListener("click", () => {
+    beginOpnieuw();
+    toon("stap-formulier");
+  });
+</script>
+</body>
+</html>
